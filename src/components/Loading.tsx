@@ -4,7 +4,7 @@ interface IProps {
 }
 
 const Loading = ({ center }: IProps) => {
-  return <div className={`loading ${center ? 'loading-center' : ''}`}></div>;
+  return <div className={`loading ${center ? 'loading-center' : ''}`}/>;
 };
 
 export default Loading;

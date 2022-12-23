@@ -52,6 +52,10 @@ const Register = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
 
+  const testUserHandle = () =>{
+    dispatch(loginUser({email:'testUser@test.com', password: 'secret'}))
+  }
+
   useEffect(() => {
     if (user) {
       setTimeout(() => {
@@ -96,6 +100,14 @@ const Register = () => {
           disabled={isLoading}
         >
           {isLoading ? 'loading...' : 'submit'}
+        </button>
+        <button
+          type={'button'}
+          className={'btn btn-block btn-hipster'}
+          disabled={isLoading}
+          onClick={testUserHandle}
+        >
+          {isLoading? 'loading...':'demo'}
         </button>
         <p>
           {values.isMember ? 'Not a member yet?' : 'Already a member?'}

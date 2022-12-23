@@ -1,14 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { RootState } from '../../store';
 import { IUser } from '../../types/userType';
-import customFetch from '../../utils/axios';
 import {
   addUserToLocalStorage,
   getUserFromLocalStorage,
   removeUserFromLocalStorage,
 } from '../../utils/localStorage';
+import {loginUserThunk, registerUserThunk, updateUserThunk} from "./userThunk";
 
 export interface IUserState {
   isLoading: boolean;
@@ -25,59 +24,11 @@ export type AsyncThunkConfig = {
   state: RootState;
 };
 
-export const registerUser = createAsyncThunk(
-  'user/registerUser',
-  async (user: IUser, thunkApi) => {
-    try {
-      const res = await customFetch.post('/auth/register', user);
-      return res.data.user;
-    } catch (error) {
-      let message;
-      if (error instanceof AxiosError) message = error.response?.data.msg;
-      else message = String(error);
-      return thunkApi.rejectWithValue(message);
-    }
-  }
-);
-export const loginUser = createAsyncThunk(
-  'user/loginUser',
-  async (user: IUser, thunkApi) => {
-    try {
-      const res = await customFetch.post('/auth/login', user);
-      return res.data.user;
-    } catch (error) {
-      let message;
-      if (error instanceof AxiosError) message = error.response?.data.msg;
-      else message = String(error);
-      return thunkApi.rejectWithValue(message);
-    }
-  }
-);
+export const registerUser = createAsyncThunk('user/registerUser', registerUserThunk);
 
-export const updateUser = createAsyncThunk<IUser, object, AsyncThunkConfig>(
-  'user/updateUser',
-  async (user, thunkApi) => {
-    try {
-      const res = await customFetch.patch('/auth/updateUser', user, {
-        headers: {
-          authorization: `Bearer ${thunkApi.getState().user.user?.token}`,
-        },
-      });
-      return res.data.user;
-    } catch (error: unknown) {
-      let message;
-      if (error instanceof AxiosError) {
-        message = error.response?.data.msg;
-        if (error.response?.status === 401) {
-          thunkApi.dispatch(logoutUser(''));
-          return thunkApi.rejectWithValue('Unauthorized! Logging Out...');
-        }
-      } else message = String(error);
+export const loginUser = createAsyncThunk('user/loginUser', loginUserThunk);
 
-      return thunkApi.rejectWithValue(message);
-    }
-  }
-);
+export const updateUser = createAsyncThunk('user/updateUser', updateUserThunk);
 
 const userSlice = createSlice({
   name: 'user',

@@ -8,8 +8,11 @@ import "normalize.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import store from "./store";
-
-//hello
+// import setupLocatorUI from "@locator/runtime";
+//
+// if (process.env.NODE_ENV === "development") {
+//   setupLocatorUI();
+// }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

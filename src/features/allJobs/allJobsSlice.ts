@@ -3,7 +3,21 @@ import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { IJob } from '../../types/jobType';
 import customFetch from '../../utils/axios';
-import { AsyncThunkConfig, logoutUser } from '../user/userSlice';
+import { AsyncThunkConfig} from '../user/userSlice';
+
+export interface Application {
+  date: Date;
+  count: number;
+}
+interface IStat {
+  pending:number;
+  interview: number;
+  declined: number;
+}
+interface StatsPayload {
+  defaultStats: IStat;
+  monthlyApplications: Application[]
+}
 
 interface IFilterState {
   search: string;
@@ -18,8 +32,12 @@ interface IInitialState extends IFilterState {
   totalJobs: number;
   numOfPages: number;
   page: number;
-  stats: {};
-  monthlyApplications: [];
+  stats: {
+    pending:number;
+    interview: number;
+    declined: number;
+  };
+  monthlyApplications: Application[];
 }
 
 const initialFilterSate: IFilterState = {
@@ -36,7 +54,11 @@ const initialState: IInitialState = {
   totalJobs: 0,
   numOfPages: 1,
   page: 1,
-  stats: {},
+  stats: {
+    pending:0,
+    interview: 0,
+    declined: 0,
+  },
   monthlyApplications: [],
   ...initialFilterSate,
 };
@@ -46,13 +68,8 @@ export const getAllJobs = createAsyncThunk<
   object,
   AsyncThunkConfig
 >('allJobs/getJobs', async (_: any, thunkApi) => {
-  let url = `/jobs`;
   try {
-    const res = await customFetch.get(`/jobs`, {
-      headers: {
-        authorization: `Bearer ${thunkApi.getState().user.user?.token}`,
-      },
-    });
+    const res = await customFetch.get(`/jobs`);
     return res.data;
   } catch (error) {
     let message;
@@ -63,6 +80,26 @@ export const getAllJobs = createAsyncThunk<
     return thunkApi.rejectWithValue(message);
   }
 });
+
+export const showStats = createAsyncThunk<
+  any,
+  any,
+  AsyncThunkConfig
+  >(
+  'allJobs/showStats',
+  async (_, thunkAPI) =>{
+    try {
+      const res = await customFetch.get('/jobs/stats');
+      return res.data
+    }catch (error) {
+      let message;
+      if (error instanceof AxiosError) {
+        message = error.response?.data.msg;
+      } else message = String(error);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+)
 
 const allJobSlice = createSlice({
   name: 'allJobs',
@@ -95,6 +132,18 @@ const allJobSlice = createSlice({
         toast.error(payload);
       }
     );
+    builder.addCase(showStats.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(showStats.fulfilled, (state, {payload}:PayloadAction<StatsPayload>) => {
+      state.isLoading = false;
+      state.stats = payload.defaultStats;
+      state.monthlyApplications = payload.monthlyApplications;
+    });
+    builder.addCase(showStats.rejected, (state, {payload}:PayloadAction<string | any>) => {
+      state.isLoading = false;
+      toast.error(payload)
+    });
   },
 });
 

@@ -6,11 +6,10 @@ import Job from './Job';
 import Loading from './Loading';
 
 const JobsContainer = () => {
-  const { jobs, isLoading, totalJobs, numOfPages } = useAppSelector(
+  const { jobs, isLoading, totalJobs } = useAppSelector(
     (state) => state.allJobs
   );
   const dispatch = useAppDispatch();
-  console.log(numOfPages);
 
   useEffect(() => {
     dispatch(getAllJobs('_' as any));
