@@ -5,16 +5,16 @@ import { getUserFromLocalStorage } from '../../utils/localStorage';
 import {createJobThunk, deleteJobThunk, editJobThunk} from "./jobThunk";
 
 interface IJobState {
-  isLoading: boolean;
-  position: string;
-  company: string;
-  jobLocation: string;
-  jobTypeOptions: [string, string, string, string];
-  jobType: string;
-  statusOptions: [string, string, string];
-  status: string;
-  isEditing: boolean;
-  editJobId: string;
+  'isLoading': boolean;
+  'position': string;
+  'company': string;
+  'jobLocation': string;
+  'jobTypeOptions': [string, string, string, string];
+  'jobType': string;
+  'statusOptions': [string, string, string];
+  'status': string;
+  'isEditing': boolean;
+  'editJobId': string;
 }
 
 interface IInputPayload {
@@ -34,7 +34,7 @@ const initialState: IJobState = {
   position: '',
   company: '',
   jobLocation: '',
-  jobTypeOptions: ['fulltime', 'part-time', 'remote', 'internship'],
+  jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
   jobType: 'full-time',
   statusOptions: ['interview', 'declined', 'pending'],
   status: 'pending',
@@ -54,17 +54,17 @@ const jobSlice = createSlice({
   name: 'job',
   initialState,
   reducers: {
-    handleChange: (state: any, { payload: { name, value } }: IInputPayload) => {
-      state[name] = value;
-    },
     clearValues: () => {
       return {
         ...initialState,
-        jobLocation: getUserFromLocalStorage()?.location || '',
+        jobLocation: getUserFromLocalStorage()?.location as string || '',
       };
     },
-    setEditJob: (state, { payload }) => {
-      return { ...state, isEditing: true, ...payload };
+    handleChange: (state:any, {payload: {name, value}}: IInputPayload) => {
+       state[name ] = value;
+    },
+    setEditJob: (state, {payload}) => {
+      return {...state, isEditing: true, ...payload};
     },
   },
   extraReducers: (builder) => {
@@ -113,4 +113,4 @@ const jobSlice = createSlice({
 
 export default jobSlice.reducer;
 
-export const { handleChange, clearValues, setEditJob } = jobSlice.actions;
+export const { handleChange,clearValues, setEditJob } = jobSlice.actions;

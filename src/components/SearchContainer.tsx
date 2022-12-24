@@ -2,7 +2,7 @@ import React, {SyntheticEvent} from 'react';
 
 import Wrapper from "../assets/wrappers/SearchContainer";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
-import {FormRow} from "./index";
+import {FormRow,FormSelectRow} from "./index";
 
 
 const SearchContainer = () => {
@@ -25,12 +25,31 @@ const SearchContainer = () => {
           handleChange={handleSearch}
         />
       {/* search by status */}
-        <FormRow
-          name={}
-          value={}
-          type={}
-          handleChange={}
-          />
+        <FormSelectRow
+          labelText={'status'}
+          handleChange={handleSearch}
+          value={searchStatus}
+          options={['all', ...statusOptions]}
+          name={'searchStatus'}/>
+        {/* search by type */}
+        <FormSelectRow
+          labelText={'type'}
+          handleChange={handleSearch}
+          value={searchType}
+          options={['all', ...jobTypeOptions]}
+          name={'searchType'}/>
+        <FormSelectRow
+          handleChange={handleSearch}
+          value={sort}
+          options={sortOption}
+          name={'sort'}/>
+        <button
+          type={'submit'}
+          className={'btn btn-block btn-danger'}
+        disabled={isLoading}
+        >
+          clear filters
+        </button>
       </div>
     </form>
   </Wrapper>;
