@@ -1,4 +1,4 @@
-import React, {SyntheticEvent} from 'react';
+import React, {ChangeEvent, SyntheticEvent} from 'react';
 
 import Wrapper from "../assets/wrappers/SearchContainer";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
@@ -9,7 +9,9 @@ const SearchContainer = () => {
   const {isLoading,search,searchStatus,searchType,sort,sortOption} = useAppSelector(store => store.allJobs)
   const {jobTypeOptions, statusOptions} = useAppSelector(store => store.job);
   const dispatch = useAppDispatch();
-  const handleSearch = (e:any) =>{};
+  const handleSearch = (e:ChangeEvent<HTMLSelectElement | HTMLInputElement>) =>{
+    e.preventDefault()
+  };
   const handleSubmit = (e: SyntheticEvent) =>{
     e.preventDefault()
   }
