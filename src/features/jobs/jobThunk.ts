@@ -7,7 +7,7 @@ import {IEditJob, IJobState} from "./types";
 
 
 
-export const createJobThunk:AsyncThunkPayloadCreator<IJobState, AsyncThunkConfig> = async(job, thunkAPI) =>{
+export const createJobThunk:AsyncThunkPayloadCreator<object, IJobState, AsyncThunkConfig> = async(job, thunkAPI) =>{
 	try {
 		const res = await customFetch.post('/jobs', job);
 		thunkAPI.dispatch(clearValues());

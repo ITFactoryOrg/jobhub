@@ -1,8 +1,9 @@
 import React, {FC} from 'react';
 
 import {ResponsiveContainer,AreaChart , Area, XAxis, YAxis,CartesianGrid, Tooltip} from 'recharts'
+import {Application} from "../features/allJobs/types";
 
-import {Application} from "../features/allJobs/allJobsSlice";
+
 
 interface IData {
 	data: Application[];

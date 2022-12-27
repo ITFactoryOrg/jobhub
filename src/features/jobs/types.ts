@@ -1,16 +1,16 @@
 import {IJob} from "../../types/jobType";
 
 export interface IJobState {
-	isLoading: boolean;
+	isLoading?: boolean;
 	position: string;
 	company: string;
 	jobLocation: string;
-	jobTypeOptions: [string, string, string, string];
+	jobTypeOptions?: [string, string, string, string];
 	jobType: string;
-	statusOptions: [string, string, string];
+	statusOptions?: [string, string, string];
 	status: string;
-	isEditing: boolean;
-	editJobId: string;
+	isEditing?: boolean;
+	editJobId?: string;
 }
 
 export interface IInputPayload {
