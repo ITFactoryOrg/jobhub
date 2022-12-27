@@ -1,48 +1,28 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction, Slice} from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 import { IJob } from '../../types/jobType';
 import { getUserFromLocalStorage } from '../../utils/localStorage';
 import {createJobThunk, deleteJobThunk, editJobThunk} from "./jobThunk";
+import {IInputPayload, IJobState} from "./types";
 
-interface IJobState {
-  'isLoading': boolean;
-  'position': string;
-  'company': string;
-  'jobLocation': string;
-  'jobTypeOptions': [string, string, string, string];
-  'jobType': string;
-  'statusOptions': [string, string, string];
-  'status': string;
-  'isEditing': boolean;
-  'editJobId': string;
-}
 
-interface IInputPayload {
-  payload: {
-    name: string | keyIJob;
-    value: string;
-  };
-}
 
-export interface IEditJob {
-  jobId: string;
-  job: IJob;
-}
 
-const initialState: IJobState = {
-  isLoading: false,
-  position: '',
-  company: '',
-  jobLocation: '',
-  jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
-  jobType: 'full-time',
-  statusOptions: ['interview', 'declined', 'pending'],
-  status: 'pending',
+
+const initialState:IJobState = {
+  "isLoading": false,
+  "position": '',
+  "company": '',
+  "jobLocation": '',
+  "jobTypeOptions": ['full-time', 'part-time', 'remote', 'internship'],
+  "jobType": 'full-time',
+  "statusOptions": ['interview', 'declined', 'pending'],
+  "status": 'pending',
   isEditing: false,
-  editJobId: '',
+  "editJobId": '',
 };
 
-type keyIJob = keyof typeof initialState;
+// type keyIJob = keyof typeof initialState;
 
 export const createJob = createAsyncThunk('job/createJob', createJobThunk);
 
@@ -50,7 +30,10 @@ export const deleteJob = createAsyncThunk('job/deleteJob', deleteJobThunk);
 
 export const editJob = createAsyncThunk('job/editJob', editJobThunk);
 
-const jobSlice = createSlice({
+class WritableDraft {
+}
+
+const jobSlice= createSlice({
   name: 'job',
   initialState,
   reducers: {
@@ -60,8 +43,8 @@ const jobSlice = createSlice({
         jobLocation: getUserFromLocalStorage()?.location as string || '',
       };
     },
-    handleChange: (state:any, {payload: {name, value}}: IInputPayload) => {
-       state[name ] = value;
+    handleChange: (state:IJobState | any, {payload: {name, value}}: IInputPayload) => {
+       state[name] = value;
     },
     setEditJob: (state, {payload}) => {
       return {...state, isEditing: true, ...payload};

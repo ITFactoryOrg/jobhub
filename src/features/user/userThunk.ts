@@ -1,8 +1,10 @@
-import {IUser} from "../../types/userType";
-import customFetch from "../../utils/axios";
-import {AxiosError} from "axios";
 import {AsyncThunkPayloadCreator} from "@reduxjs/toolkit";
+
+import {IUser} from "../../types/userType";
+import customFetch, {checkForUnAuthorizedResponse} from "../../utils/axios";
 import {AsyncThunkConfig, logoutUser} from "./userSlice";
+import {clearValues} from "../jobs/jobSlice";
+import {clearAllJobsState} from "../allJobs/allJobsSlice";
 
 
 export const registerUserThunk:AsyncThunkPayloadCreator<any, IUser, AsyncThunkConfig>  = async (user, thunkApi) => {
@@ -10,10 +12,7 @@ export const registerUserThunk:AsyncThunkPayloadCreator<any, IUser, AsyncThunkCo
 		const res = await customFetch.post('/auth/register', user);
 		return res.data.user;
 	} catch (error) {
-		let message;
-		if (error instanceof AxiosError) message = error.response?.data.msg;
-		else message = String(error);
-		return thunkApi.rejectWithValue(message);
+		return checkForUnAuthorizedResponse(error, thunkApi)
 	}
 }
 
@@ -22,27 +21,29 @@ export const loginUserThunk:AsyncThunkPayloadCreator<any, IUser, AsyncThunkConfi
 		const res = await customFetch.post('/auth/login', user);
 		return res.data.user;
 	} catch (error) {
-		let message;
-		if (error instanceof AxiosError) message = error.response?.data.msg;
-		else message = String(error);
-		return thunkApi.rejectWithValue(message);
+		return checkForUnAuthorizedResponse(error, thunkApi)
 	}
 }
 
-export const updateUserThunk :AsyncThunkPayloadCreator<IUser, object, AsyncThunkConfig> = async (user, thunkApi) => {
+export const updateUserThunk :AsyncThunkPayloadCreator<IUser,object,  AsyncThunkConfig> = async (user, thunkApi) => {
 	try {
 		const res = await customFetch.patch('/auth/updateUser', user);
 		return res.data.user;
-	} catch (error: unknown) {
-		let message;
-		if (error instanceof AxiosError) {
-			message = error.response?.data.msg;
-			if (error.response?.status === 401) {
-				thunkApi.dispatch(logoutUser(''));
-				return thunkApi.rejectWithValue('Unauthorized! Logging Out...');
-			}
-		} else message = String(error);
+	} catch (error) {
+		return checkForUnAuthorizedResponse(error, thunkApi)
+	}
+}
 
-		return thunkApi.rejectWithValue(message);
+export const clearStoreThunk:AsyncThunkPayloadCreator<object,string, AsyncThunkConfig> =  (message, thunkAPI) =>{
+	try{
+		//logout user
+		thunkAPI.dispatch(logoutUser(message));
+		// clear jobs value
+		thunkAPI.dispatch(clearAllJobsState());
+		//clear job input values
+		thunkAPI.dispatch(clearValues());
+		return Promise.resolve();
+	}catch (error) {
+		return Promise.reject();
 	}
 }

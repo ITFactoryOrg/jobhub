@@ -4,17 +4,18 @@ import { getAllJobs } from '../features/allJobs/allJobsSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import Job from './Job';
 import Loading from './Loading';
+import PageBtnContainer from "./PageBtnContainer";
 
 const JobsContainer = () => {
-  const { jobs, isLoading, totalJobs } = useAppSelector(
+  const { jobs, isLoading, totalJobs, numOfPages, page, search,searchStatus, searchType, sort } = useAppSelector(
     (state) => state.allJobs
   );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getAllJobs('_' as any));
-  }, []);
-  const reversedJobs = [...jobs].reverse();
+  }, [page, search,searchStatus, searchType, sort ]);
+  // const reversedJobs = [...jobs].reverse();
 
   if (isLoading) {
     return <Loading center='center' />;
@@ -22,15 +23,19 @@ const JobsContainer = () => {
   if (jobs.length === 0) {
     return <Wrapper>No Jobs to display...</Wrapper>;
   }
+
+
   return (
     <Wrapper>
-      <h5>Jobs Info</h5>
-      <p>{totalJobs}</p>
+      <h5>
+        {totalJobs} job{jobs.length > 1 && 's'} found
+      </h5>
       <div className='jobs'>
-        {reversedJobs.map((job) => {
+        {jobs.map((job) => {
           return <Job key={job._id} {...job} />;
         })}
       </div>
+      {numOfPages> 1 && <PageBtnContainer/>}
     </Wrapper>
   );
 };

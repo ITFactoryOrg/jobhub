@@ -1,61 +1,42 @@
-import customFetch from "../../utils/axios";
+import customFetch, {checkForUnAuthorizedResponse} from "../../utils/axios";
 import {showLoading,hideLoading,getAllJobs} from '../allJobs/allJobsSlice';
 import {clearValues} from './jobSlice'
-import { IJob} from "../../types/jobType";
-import {AsyncThunkConfig, logoutUser} from "../user/userSlice";
-import {AxiosError} from "axios";
-import {IEditJob} from "./jobSlice";
+import {AsyncThunkConfig} from "../user/userSlice";
 import {AsyncThunkPayloadCreator} from "@reduxjs/toolkit";
+import {IEditJob, IJobState} from "./types";
 
 
 
-export const createJobThunk:AsyncThunkPayloadCreator<any, IJob, AsyncThunkConfig> = async(job, thunkApi) =>{
+export const createJobThunk:AsyncThunkPayloadCreator<IJobState, AsyncThunkConfig> = async(job, thunkAPI) =>{
 	try {
 		const res = await customFetch.post('/jobs', job);
-		thunkApi.dispatch(clearValues());
+		thunkAPI.dispatch(clearValues());
 		return res.data;
-	} catch (error: unknown) {
-		let message;
-		if (error instanceof AxiosError) {
-			message = error.response?.data.msg;
-			if (error.response?.status === 401) {
-				thunkApi.dispatch(logoutUser(''));
-				return thunkApi.rejectWithValue('Unauthorized! Logging Out...');
-			}
-		} else message = String(error);
-
-		return thunkApi.rejectWithValue(message);
+	} catch (error) {
+		return checkForUnAuthorizedResponse(error, thunkAPI)
 	}
 
 }
 
-export const deleteJobThunk:AsyncThunkPayloadCreator<string, string | undefined, AsyncThunkConfig> = async (jobId, thunkApi) => {
-	thunkApi.dispatch(showLoading());
+export const deleteJobThunk:AsyncThunkPayloadCreator<string, string | undefined, AsyncThunkConfig> = async (jobId, thunkAPI) => {
+	thunkAPI.dispatch(showLoading());
 	try {
 		const res = await customFetch.delete(`jobs/${jobId}`);
-		thunkApi.dispatch(getAllJobs('_' as any));
+		thunkAPI.dispatch(getAllJobs('_' as any));
 		return res.data.msg;
 	} catch (error: unknown) {
-		thunkApi.dispatch(hideLoading());
-		let message;
-		if (error instanceof AxiosError) {
-			message = error.response?.data.msg;
-		} else message = String(error);
-		return thunkApi.rejectWithValue(message);
+		thunkAPI.dispatch(hideLoading());
+		return checkForUnAuthorizedResponse(error, thunkAPI)
 	}
 }
 
-export const editJobThunk:AsyncThunkPayloadCreator<string, IEditJob, AsyncThunkConfig> = async ({ jobId, job }, thunkApi) => {
+export const editJobThunk:AsyncThunkPayloadCreator<string, IEditJob, AsyncThunkConfig> = async ({ jobId, job }, thunkAPI) => {
 	try {
 		const res = await customFetch.patch(`/jobs/${jobId}`, job);
 		// thunkApi.dispatch(clearValues());
 		return res.data;
 	} catch (error: unknown) {
-		thunkApi.dispatch(hideLoading());
-		let message;
-		if (error instanceof AxiosError) {
-			message = error.response?.data.msg;
-		} else message = String(error);
-		return thunkApi.rejectWithValue(message);
+		thunkAPI.dispatch(hideLoading());
+		return checkForUnAuthorizedResponse(error, thunkAPI)
 	}
 }

@@ -12,8 +12,8 @@ const ChartsContainer = () => {
 	const {monthlyApplications: data} = useAppSelector(store => store.allJobs)
 	return (
 		<Wrapper>
-			<button className={'btn  btn-success'} type={'button'} onClick={() => setBarChart(true)}>BarChart</button>
-			<button className={'btn  btn-success'} type={'button'} onClick={() => setBarChart(false)}>Area Chart</button>
+			<button className={`btn  btn-success ${barchart? 'active':''}`} type={'button'} onClick={() => setBarChart(true)}>BarChart</button>
+			<button className={`btn  btn-success ${!barchart? 'active':''}`} type={'button'} onClick={() => setBarChart(false)}>Area Chart</button>
 
 			{barchart? <BarChart data={data}/>: <AreaChart data={data}/>}
 		</Wrapper>

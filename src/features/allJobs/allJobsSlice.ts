@@ -1,44 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import { IJob } from '../../types/jobType';
-import customFetch from '../../utils/axios';
-import { AsyncThunkConfig} from '../user/userSlice';
-
-export interface Application {
-  date: Date;
-  count: number;
-}
-interface IStat {
-  pending:number;
-  interview: number;
-  declined: number;
-}
-interface StatsPayload {
-  defaultStats: IStat;
-  monthlyApplications: Application[]
-}
-
-interface IFilterState {
-  search: string;
-  searchStatus: string;
-  searchType: string;
-  sort: string;
-  sortOption: ['latest', 'oldest', 'a-z', 'z-a'];
-}
-interface IInitialState extends IFilterState {
-  isLoading: boolean;
-  jobs: IJob[];
-  totalJobs: number;
-  numOfPages: number;
-  page: number;
-  stats: {
-    pending:number;
-    interview: number;
-    declined: number;
-  };
-  monthlyApplications: Application[];
-}
+import {allJobsThunk, showStatsThunk} from "./allJobThunk";
+import {IFilterState, IInitialState, StatsPayload} from "./types";
 
 const initialFilterSate: IFilterState = {
   search: '',
@@ -63,43 +26,9 @@ const initialState: IInitialState = {
   ...initialFilterSate,
 };
 
-export const getAllJobs = createAsyncThunk<
-  IInitialState,
-  object,
-  AsyncThunkConfig
->('allJobs/getJobs', async (_: any, thunkApi) => {
-  try {
-    const res = await customFetch.get(`/jobs`);
-    return res.data;
-  } catch (error) {
-    let message;
-    if (error instanceof AxiosError) {
-      message = error.response?.data.msg;
-    } else message = String(error);
+export const getAllJobs = createAsyncThunk('allJobs/getJobs', allJobsThunk);
 
-    return thunkApi.rejectWithValue(message);
-  }
-});
-
-export const showStats = createAsyncThunk<
-  any,
-  any,
-  AsyncThunkConfig
-  >(
-  'allJobs/showStats',
-  async (_, thunkAPI) =>{
-    try {
-      const res = await customFetch.get('/jobs/stats');
-      return res.data
-    }catch (error) {
-      let message;
-      if (error instanceof AxiosError) {
-        message = error.response?.data.msg;
-      } else message = String(error);
-      return thunkAPI.rejectWithValue(message);
-    }
-  }
-)
+export const showStats = createAsyncThunk('allJobs/showStats', showStatsThunk)
 
 const allJobSlice = createSlice({
   name: 'allJobs',
@@ -111,6 +40,17 @@ const allJobSlice = createSlice({
     hideLoading: (state) => {
       state.isLoading = false;
     },
+    handleChange:(state:IFilterState | any, {payload:{name, value}})=>{
+      state.page = 1
+      state[name]= value
+    },
+    clearFilters: (state) => {
+      return {...state, ...initialFilterSate}
+    },
+    changePage:(state, {payload}:PayloadAction<number>) =>{
+      state.page = payload
+    },
+    clearAllJobsState:() => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(getAllJobs.pending, (state) => {
@@ -148,4 +88,4 @@ const allJobSlice = createSlice({
 });
 
 export default allJobSlice.reducer;
-export const { showLoading, hideLoading } = allJobSlice.actions;
+export const { showLoading, hideLoading, clearFilters, handleChange, changePage, clearAllJobsState } = allJobSlice.actions;

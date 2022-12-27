@@ -22,6 +22,10 @@ const Wrapper = styled.section`
     background: var(--primary-700);
     box-shadow: var(--shadow-3);
   }
+	button.active{
+    background: var(--primary-700);
+    box-shadow: var(--shadow-3);
+	}
   h4 {
     text-align: center;
     margin-bottom: 0.75rem;
